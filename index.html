@@ -704,6 +704,11 @@
       line-height: 1.4;
     }
 
+    .sidebar .disqus-card {
+      margin-top: 16px;
+      box-shadow: none;
+    }
+
     /* 무한 스크롤 센티널 */
     #feed-sentinel {
       width: 100%;
@@ -1185,29 +1190,6 @@
         <div id="feed-sentinel" aria-hidden="true"></div>
       </section>
 
-      <section class="disqus-card" aria-label="댓글 섹션">
-        <h2 class="disqus-title">댓글</h2>
-        <div id="disqus_thread"></div>
-        <script>
-          /**
-          *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
-          *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
-          */
-          /*
-          var disqus_config = function () {
-            this.page.url = window.location.origin + window.location.pathname;
-            this.page.identifier = "instamoment-main";
-          };
-          */
-          (function() { // DON'T EDIT BELOW THIS LINE
-            var d = document, s = d.createElement("script");
-            s.src = "https://wewerww.disqus.com/embed.js";
-            s.setAttribute("data-timestamp", +new Date());
-            (d.head || d.body).appendChild(s);
-          })();
-        </script>
-        <noscript class="disqus-note">Please enable JavaScript to view the comments powered by Disqus.</noscript>
-      </section>
     </div>
 
     <!-- 데스크톱 사이드바 -->
@@ -1296,6 +1278,30 @@
           <a href="#" aria-label="언어">언어</a>
           <div style="margin-top: 8px;">© 2026 INSTA MOMENT</div>
         </footer>
+
+        <section class="disqus-card" aria-label="댓글 섹션">
+          <h2 class="disqus-title">댓글</h2>
+          <div id="disqus_thread"></div>
+          <script>
+            /**
+            *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+            *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+            */
+            /*
+            var disqus_config = function () {
+              this.page.url = window.location.origin + window.location.pathname;
+              this.page.identifier = "instamoment-main";
+            };
+            */
+            (function() { // DON'T EDIT BELOW THIS LINE
+              var d = document, s = d.createElement("script");
+              s.src = "https://wewerww.disqus.com/embed.js";
+              s.setAttribute("data-timestamp", +new Date());
+              (d.head || d.body).appendChild(s);
+            })();
+          </script>
+          <noscript class="disqus-note">Please enable JavaScript to view the comments powered by Disqus.</noscript>
+        </section>
       </div>
     </aside>
   </main>
