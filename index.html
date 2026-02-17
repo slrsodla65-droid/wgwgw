@@ -682,6 +682,27 @@
       margin-bottom: 16px;
       box-shadow: none;
     }
+    .disqus-card {
+      margin-top: 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+      box-shadow: var(--shadow);
+    }
+
+    .disqus-title {
+      margin: 0 0 10px;
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .disqus-note {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 0.78rem;
+      line-height: 1.4;
+    }
 
     /* 무한 스크롤 센티널 */
     #feed-sentinel {
@@ -1163,6 +1184,30 @@
         <div id="feed-list" class="feed-list"></div>
         <div id="feed-sentinel" aria-hidden="true"></div>
       </section>
+
+      <section class="disqus-card" aria-label="댓글 섹션">
+        <h2 class="disqus-title">댓글</h2>
+        <div id="disqus_thread"></div>
+        <script>
+          /**
+          *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+          *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+          */
+          /*
+          var disqus_config = function () {
+            this.page.url = window.location.origin + window.location.pathname;
+            this.page.identifier = "instamoment-main";
+          };
+          */
+          (function() { // DON'T EDIT BELOW THIS LINE
+            var d = document, s = d.createElement("script");
+            s.src = "https://wewerww.disqus.com/embed.js";
+            s.setAttribute("data-timestamp", +new Date());
+            (d.head || d.body).appendChild(s);
+          })();
+        </script>
+        <noscript class="disqus-note">Please enable JavaScript to view the comments powered by Disqus.</noscript>
+      </section>
     </div>
 
     <!-- 데스크톱 사이드바 -->
@@ -1186,7 +1231,6 @@
           </div>
           <div id="suggest-list" class="suggest-list"></div>
         </section>
-
         <section class="partner-contact" aria-label="제휴 문의 폼">
           <h2 class="partner-title">제휴 문의</h2>
           <p class="partner-desc">협업 제안 내용을 남겨주시면 확인 후 이메일로 회신드리겠습니다.</p>
