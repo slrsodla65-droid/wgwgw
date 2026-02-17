@@ -270,25 +270,15 @@
       line-height: 1.4;
     }
 
-    .tm-start-btn {
+    .tm-file-input {
+      margin-top: 6px;
       width: 100%;
+      border: 1px solid var(--border);
       border-radius: 10px;
-      background: var(--link-blue);
-      color: #fff;
-      font-size: 0.88rem;
-      font-weight: 700;
-      padding: 10px 12px;
-    }
-
-    .tm-start-btn:hover {
-      filter: brightness(0.95);
-      transform: translateY(-1px);
-    }
-
-    .tm-start-btn:disabled {
-      opacity: 0.65;
-      cursor: not-allowed;
-      transform: none;
+      background: color-mix(in srgb, var(--surface) 70%, var(--bg));
+      color: var(--text);
+      font-size: 0.82rem;
+      padding: 8px;
     }
 
     .tm-status {
@@ -298,7 +288,7 @@
       line-height: 1.4;
     }
 
-    .tm-webcam-container {
+    .tm-upload-preview {
       margin-top: 10px;
       min-height: 212px;
       border: 1px dashed var(--border);
@@ -308,13 +298,17 @@
       place-items: center;
       overflow: hidden;
       padding: 4px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      text-align: center;
     }
 
-    .tm-webcam-container canvas {
+    .tm-upload-preview img {
       width: 100%;
       max-width: 200px;
       border-radius: 10px;
       display: block;
+      object-fit: cover;
     }
 
     .tm-label-container {
@@ -1274,10 +1268,10 @@
       <div class="left-sidebar-inner">
         <section aria-label="Teachable Machine 코딩 사진 식별">
           <h2 class="tm-title">코딩 사진 식별</h2>
-          <p class="tm-description">웹캠 화면을 분석해서 코딩 관련 장면을 식별합니다.</p>
-          <button id="tm-start-btn" class="tm-start-btn" type="button" onclick="initCodingClassifier()">Start</button>
-          <p id="tm-status" class="tm-status">Start 버튼을 눌러 카메라를 시작하세요.</p>
-          <div id="tm-webcam-container" class="tm-webcam-container"></div>
+          <p class="tm-description">이미지 파일을 업로드하면 코딩 관련 장면을 식별합니다.</p>
+          <input id="tm-file-input" class="tm-file-input" type="file" accept="image/*">
+          <p id="tm-status" class="tm-status">이미지를 선택하면 자동으로 식별합니다.</p>
+          <div id="tm-upload-preview" class="tm-upload-preview">미리보기 없음</div>
           <div id="tm-label-container" class="tm-label-container"></div>
         </section>
       </div>
@@ -1444,82 +1438,89 @@
   <script>
     const TM_MODEL_BASE_URL = "https://teachablemachine.withgoogle.com/models/4ItTy4E8y/";
     let tmCodingModel = null;
-    let tmCodingWebcam = null;
     let tmCodingLabelContainer = null;
     let tmCodingMaxPredictions = 0;
-    let tmCodingRunning = false;
 
-    async function initCodingClassifier() {
-      const startBtn = document.getElementById("tm-start-btn");
-      const statusEl = document.getElementById("tm-status");
-      const webcamContainerEl = document.getElementById("tm-webcam-container");
-      const labelContainerEl = document.getElementById("tm-label-container");
-
-      if (tmCodingRunning) {
-        statusEl.textContent = "이미 식별이 실행 중입니다.";
-        return;
+    async function loadCodingModel() {
+      if (tmCodingModel) {
+        return tmCodingModel;
       }
+
+      const modelURL = TM_MODEL_BASE_URL + "model.json";
+      const metadataURL = TM_MODEL_BASE_URL + "metadata.json";
+      tmCodingModel = await tmImage.load(modelURL, metadataURL);
+      tmCodingMaxPredictions = tmCodingModel.getTotalClasses();
+
+      const labelContainerEl = document.getElementById("tm-label-container");
+      labelContainerEl.innerHTML = "";
+      for (let i = 0; i < tmCodingMaxPredictions; i += 1) {
+        const row = document.createElement("div");
+        row.className = "tm-label-item";
+        labelContainerEl.appendChild(row);
+      }
+      tmCodingLabelContainer = labelContainerEl;
+
+      return tmCodingModel;
+    }
+
+    function readImageFile(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const img = new Image();
+          img.onload = () => resolve(img);
+          img.onerror = reject;
+          img.src = reader.result;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function predictFromUploadedImage(file) {
+      const statusEl = document.getElementById("tm-status");
+      const previewEl = document.getElementById("tm-upload-preview");
 
       try {
-        startBtn.disabled = true;
-        statusEl.textContent = "모델과 카메라를 준비 중입니다...";
+        statusEl.textContent = "모델을 불러오고 이미지를 분석 중입니다...";
+        await loadCodingModel();
 
-        if (!tmCodingModel) {
-          const modelURL = TM_MODEL_BASE_URL + "model.json";
-          const metadataURL = TM_MODEL_BASE_URL + "metadata.json";
-          tmCodingModel = await tmImage.load(modelURL, metadataURL);
-          tmCodingMaxPredictions = tmCodingModel.getTotalClasses();
-        }
+        const imageEl = await readImageFile(file);
 
-        const flip = true;
-        tmCodingWebcam = new tmImage.Webcam(200, 200, flip);
-        await tmCodingWebcam.setup();
-        await tmCodingWebcam.play();
-        tmCodingRunning = true;
+        previewEl.innerHTML = "";
+        previewEl.appendChild(imageEl);
 
-        webcamContainerEl.innerHTML = "";
-        webcamContainerEl.appendChild(tmCodingWebcam.canvas);
+        const prediction = await tmCodingModel.predict(imageEl);
+        prediction.sort((a, b) => b.probability - a.probability);
 
-        labelContainerEl.innerHTML = "";
         for (let i = 0; i < tmCodingMaxPredictions; i += 1) {
-          const row = document.createElement("div");
-          row.className = "tm-label-item";
-          labelContainerEl.appendChild(row);
+          const classPrediction = `${prediction[i].className}: ${(prediction[i].probability * 100).toFixed(1)}%`;
+          tmCodingLabelContainer.childNodes[i].textContent = classPrediction;
         }
-        tmCodingLabelContainer = labelContainerEl;
 
-        statusEl.textContent = "실시간 식별 중입니다.";
-        window.requestAnimationFrame(loopCodingClassifier);
+        statusEl.textContent = "식별 완료";
       } catch (error) {
         console.error(error);
-        statusEl.textContent = "카메라 권한 또는 모델 로드에 실패했습니다.";
-        tmCodingRunning = false;
-      } finally {
-        startBtn.disabled = false;
+        statusEl.textContent = "이미지 분석에 실패했습니다. 다른 이미지를 선택해 주세요.";
       }
     }
 
-    async function loopCodingClassifier() {
-      if (!tmCodingRunning || !tmCodingWebcam) {
+    function bindCodingFileInput() {
+      const fileInputEl = document.getElementById("tm-file-input");
+      if (!fileInputEl) {
         return;
       }
 
-      tmCodingWebcam.update();
-      await predictCodingClassifier();
-      window.requestAnimationFrame(loopCodingClassifier);
+      fileInputEl.addEventListener("change", async (event) => {
+        const file = event.target.files && event.target.files[0];
+        if (!file) {
+          return;
+        }
+        await predictFromUploadedImage(file);
+      });
     }
 
-    async function predictCodingClassifier() {
-      const prediction = await tmCodingModel.predict(tmCodingWebcam.canvas);
-      prediction.sort((a, b) => b.probability - a.probability);
-
-      for (let i = 0; i < tmCodingMaxPredictions; i += 1) {
-        const classPrediction = `${prediction[i].className}: ${(prediction[i].probability * 100).toFixed(1)}%`;
-        tmCodingLabelContainer.childNodes[i].textContent = classPrediction;
-      }
-    }
-
-    window.initCodingClassifier = initCodingClassifier;
+    bindCodingFileInput();
   </script>
 
   <script>
