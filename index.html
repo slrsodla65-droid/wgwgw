@@ -32,6 +32,26 @@
       --shadow: 0 10px 26px rgba(0, 0, 0, 0.35);
     }
 
+    html[data-theme="gray"] {
+      --bg: #eaecf0;
+      --surface: #f7f8fa;
+      --text: #20242b;
+      --muted: #626b77;
+      --border: #cbd2dc;
+      --accent-grad: linear-gradient(90deg, #5d6673 0%, #7f8793 50%, #b1b8c4 100%);
+      --shadow: 0 9px 24px rgba(36, 45, 58, 0.14);
+    }
+
+    html[data-theme="blue-light"] {
+      --bg: #f6f1e7;
+      --surface: #fffaf0;
+      --text: #2f261b;
+      --muted: #746451;
+      --border: #e6d8c1;
+      --accent-grad: linear-gradient(90deg, #ba7c2f 0%, #d09242 50%, #ebbf72 100%);
+      --shadow: 0 8px 24px rgba(96, 70, 35, 0.14);
+    }
+
     /* 공통 리셋/기본 스타일 */
     * {
       box-sizing: border-box;
@@ -54,7 +74,8 @@
 
     a,
     button,
-    input {
+    input,
+    select {
       font-family: inherit;
       color: inherit;
     }
@@ -184,47 +205,26 @@
     }
 
     /* 다크모드 토글 UI */
-    .theme-switch {
-      position: relative;
-      width: 44px;
-      height: 24px;
+    .theme-picker {
       display: inline-flex;
       align-items: center;
       margin-left: 6px;
     }
 
-    .theme-switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-      position: absolute;
-    }
-
-    .theme-slider {
-      width: 100%;
-      height: 100%;
-      border-radius: 999px;
+    .theme-select {
+      height: 34px;
+      min-width: 132px;
       border: 1px solid var(--border);
-      background: color-mix(in srgb, var(--surface) 55%, var(--bg));
-      position: relative;
-      transition: background-color 0.25s ease;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--surface) 72%, var(--bg));
+      color: var(--text);
+      padding: 0 10px;
+      font-size: 0.84rem;
+      outline: none;
     }
 
-    .theme-slider::before {
-      content: "";
-      position: absolute;
-      top: 2px;
-      left: 2px;
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      background: var(--text);
-      transform: translateX(0);
-      transition: transform 0.25s ease;
-    }
-
-    .theme-switch input:checked + .theme-slider::before {
-      transform: translateX(20px);
+    .theme-select:hover {
+      background: color-mix(in srgb, var(--surface) 60%, var(--bg));
     }
 
     /* 메인 레이아웃: 피드 + 데스크톱 사이드바 */
@@ -903,6 +903,22 @@
         height: 30px;
       }
 
+      .header-actions {
+        gap: 4px;
+      }
+
+      .header-actions .icon-btn:nth-child(1),
+      .header-actions .icon-btn:nth-child(2) {
+        display: none;
+      }
+
+      .theme-select {
+        min-width: 88px;
+        height: 30px;
+        font-size: 0.78rem;
+        padding: 0 8px;
+      }
+
       .story-item {
         min-width: 68px;
         max-width: 68px;
@@ -1032,10 +1048,15 @@
         <button class="icon-btn" type="button" aria-label="알림">♡</button>
         <button class="icon-btn" type="button" aria-label="프로필">👤</button>
 
-        <label class="theme-switch" aria-label="다크 모드 전환">
-          <input id="theme-toggle" type="checkbox" aria-label="다크 모드 전환">
-          <span class="theme-slider" aria-hidden="true"></span>
-        </label>
+        <div class="theme-picker">
+          <label class="sr-only" for="theme-select">Theme mode</label>
+          <select id="theme-select" class="theme-select" aria-label="Theme mode">
+            <option value="light">White</option>
+            <option value="dark">Dark</option>
+            <option value="gray">Gray</option>
+            <option value="blue-light">Blue Light</option>
+          </select>
+        </div>
       </div>
     </div>
   </header>
@@ -1227,7 +1248,7 @@
     const feedListEl = document.getElementById("feed-list");
     const feedSentinelEl = document.getElementById("feed-sentinel");
     const suggestListEl = document.getElementById("suggest-list");
-    const themeToggleEl = document.getElementById("theme-toggle");
+    const themeSelectEl = document.getElementById("theme-select");
     const storyModalEl = document.getElementById("story-modal");
     const storyProgressEl = document.getElementById("story-progress-bar");
     const storyModalAvatarEl = document.getElementById("story-modal-avatar");
@@ -1239,6 +1260,8 @@
     let postIdSeed = postsData.length + 1;
     let infiniteLoading = false;
     let lastFocusElement = null;
+    const THEME_STORAGE_KEY = "instamoment-theme";
+    const VALID_THEMES = ["light", "dark", "gray", "blue-light"];
 
     // 피드 카드 페이드인 관찰자
     const postRevealObserver = new IntersectionObserver(
@@ -1529,14 +1552,33 @@
 
     // 다크모드 적용
     function applyTheme(mode) {
-      document.documentElement.setAttribute("data-theme", mode);
-      themeToggleEl.checked = mode === "dark";
+      const safeMode = VALID_THEMES.includes(mode) ? mode : "light";
+      document.documentElement.setAttribute("data-theme", safeMode);
+      themeSelectEl.value = safeMode;
+
+      try {
+        localStorage.setItem(THEME_STORAGE_KEY, safeMode);
+      } catch (error) {
+        console.warn("Theme persistence is unavailable.", error);
+      }
+    }
+
+    function getInitialTheme() {
+      try {
+        const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+        if (VALID_THEMES.includes(savedTheme)) {
+          return savedTheme;
+        }
+      } catch (error) {
+        console.warn("Theme restore is unavailable.", error);
+      }
+
+      return "light";
     }
 
     // 다크모드 토글
-    function toggleTheme() {
-      const current = document.documentElement.getAttribute("data-theme");
-      applyTheme(current === "dark" ? "light" : "dark");
+    function handleThemeChange(event) {
+      applyTheme(event.target.value);
     }
 
     // 무한 스크롤용 새 게시물 생성
@@ -1639,7 +1681,7 @@
 
     // 헤더 다크모드 토글 이벤트
     function bindThemeEvents() {
-      themeToggleEl.addEventListener("change", toggleTheme);
+      themeSelectEl.addEventListener("change", handleThemeChange);
     }
 
     // 모바일 하단 탭 활성화 토글
@@ -1655,7 +1697,7 @@
 
     // 앱 초기화
     function init() {
-      applyTheme("light");
+      applyTheme(getInitialTheme());
       renderStories(storiesData);
       renderPosts(postsData, false);
       renderSuggestions();
