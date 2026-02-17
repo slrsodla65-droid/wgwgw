@@ -1,0 +1,1671 @@
+<!doctype html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Instagram Style Single Page</title>
+  <!-- Google Fonts: 로고/본문 폰트 로드 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    /* 전역 테마 변수: 라이트 모드 기본값 */
+    :root {
+      --bg: #f6f6f7;
+      --surface: #ffffff;
+      --text: #121212;
+      --muted: #6a6a6a;
+      --border: #dddddd;
+      --accent-grad: linear-gradient(90deg, #833ab4 0%, #fd1d1d 50%, #fcb045 100%);
+      --heart-red: #ed4956;
+      --link-blue: #0095f6;
+      --shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    }
+
+    /* 다크 모드 변수 오버라이드 */
+    html[data-theme="dark"] {
+      --bg: #0f1013;
+      --surface: #17181d;
+      --text: #f2f2f2;
+      --muted: #a7a7a7;
+      --border: #2c2f36;
+      --shadow: 0 10px 26px rgba(0, 0, 0, 0.35);
+    }
+
+    /* 공통 리셋/기본 스타일 */
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100%;
+      font-family: "Roboto", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    img {
+      display: block;
+      max-width: 100%;
+    }
+
+    a,
+    button,
+    input {
+      font-family: inherit;
+      color: inherit;
+    }
+
+    button {
+      border: none;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button,
+    a {
+      transition: color 0.25s ease, background-color 0.25s ease, transform 0.25s ease, opacity 0.25s ease;
+    }
+
+    :focus-visible {
+      outline: 2px solid #3b82f6;
+      outline-offset: 2px;
+      border-radius: 8px;
+    }
+
+    /* 스크린리더 전용 텍스트 */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    /* 헤더: 상단 고정 + 하단 그라데이션 보더 */
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 120;
+      background: var(--surface);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+    }
+
+    .app-header::after {
+      content: "";
+      display: block;
+      width: 100%;
+      height: 1px;
+      background: var(--accent-grad);
+      opacity: 0.75;
+    }
+
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 10px 12px;
+      display: grid;
+      grid-template-columns: auto minmax(120px, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+    }
+
+    /* 로고 텍스트 */
+    .brand {
+      font-family: "Pacifico", cursive;
+      font-size: 1.55rem;
+      line-height: 1;
+      white-space: nowrap;
+      margin: 0;
+    }
+
+    /* 검색창 */
+    .search-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: color-mix(in srgb, var(--surface) 70%, var(--bg));
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 8px 12px;
+      min-width: 0;
+    }
+
+    .search-wrap span {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .search-wrap input {
+      border: 0;
+      outline: 0;
+      width: 100%;
+      background: transparent;
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+
+    .search-wrap input::placeholder {
+      color: var(--muted);
+    }
+
+    /* 헤더 우측 아이콘 영역 */
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .icon-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.05rem;
+    }
+
+    .icon-btn:hover {
+      background: color-mix(in srgb, var(--surface) 60%, var(--bg));
+      transform: translateY(-1px);
+    }
+
+    /* 다크모드 토글 UI */
+    .theme-switch {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      display: inline-flex;
+      align-items: center;
+      margin-left: 6px;
+    }
+
+    .theme-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+      position: absolute;
+    }
+
+    .theme-slider {
+      width: 100%;
+      height: 100%;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: color-mix(in srgb, var(--surface) 55%, var(--bg));
+      position: relative;
+      transition: background-color 0.25s ease;
+    }
+
+    .theme-slider::before {
+      content: "";
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--text);
+      transform: translateX(0);
+      transition: transform 0.25s ease;
+    }
+
+    .theme-switch input:checked + .theme-slider::before {
+      transform: translateX(20px);
+    }
+
+    /* 메인 레이아웃: 피드 + 데스크톱 사이드바 */
+    .page-main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 14px 12px 80px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 22px;
+    }
+
+    .feed-column {
+      width: 100%;
+      margin: 0 auto;
+      max-width: 640px;
+    }
+
+    /* 스토리 섹션 */
+    .stories {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 10px;
+      margin-bottom: 14px;
+      box-shadow: var(--shadow);
+    }
+
+    .stories-list {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--muted) transparent;
+    }
+
+    .stories-list::-webkit-scrollbar {
+      height: 6px;
+    }
+
+    .stories-list::-webkit-scrollbar-thumb {
+      background: color-mix(in srgb, var(--muted) 50%, transparent);
+      border-radius: 999px;
+    }
+
+    .story-item {
+      min-width: 72px;
+      max-width: 72px;
+      text-align: center;
+      color: var(--text);
+    }
+
+    .story-button {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      border-radius: 10px;
+      padding: 4px 2px;
+    }
+
+    .story-button:hover .story-ring {
+      animation: ring-spin 0.95s linear infinite;
+    }
+
+    .story-ring {
+      width: 66px;
+      height: 66px;
+      border-radius: 50%;
+      padding: 2px;
+      background: var(--accent-grad);
+      position: relative;
+    }
+
+    .story-ring img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--surface);
+      background: var(--surface);
+    }
+
+    .story-plus {
+      position: absolute;
+      right: -2px;
+      bottom: -2px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--link-blue);
+      color: #fff;
+      border: 2px solid var(--surface);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .story-name {
+      width: 100%;
+      font-size: 0.76rem;
+      color: var(--text);
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    /* 피드 게시물 카드 */
+    .feed-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .post-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      opacity: 0;
+      transform: translateY(22px);
+      transition: opacity 0.55s ease, transform 0.55s ease;
+    }
+
+    .post-card.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .post-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      gap: 8px;
+    }
+
+    .post-user {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      min-width: 0;
+    }
+
+    .post-user img {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .post-username {
+      font-weight: 700;
+      font-size: 0.92rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 170px;
+    }
+
+    .post-more {
+      font-size: 1.3rem;
+      color: var(--muted);
+      line-height: 1;
+      padding: 4px;
+      border-radius: 8px;
+    }
+
+    .post-more:hover {
+      color: var(--text);
+      background: color-mix(in srgb, var(--surface) 60%, var(--bg));
+    }
+
+    /* 이미지 + 스켈레톤 + 더블클릭 하트 */
+    .image-frame {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      overflow: hidden;
+      background: #d8d8d8;
+      isolation: isolate;
+    }
+
+    .image-frame::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(100deg, #d0d0d0 20%, #ececec 45%, #d0d0d0 70%);
+      background-size: 220% 100%;
+      animation: skeleton-shimmer 1.4s linear infinite;
+      z-index: 1;
+    }
+
+    .image-frame.loaded::before {
+      display: none;
+    }
+
+    .image-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .image-frame.loaded img {
+      opacity: 1;
+    }
+
+    .double-heart {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.5);
+      font-size: 6rem;
+      color: #fff;
+      opacity: 0;
+      pointer-events: none;
+      text-shadow: 0 3px 18px rgba(0, 0, 0, 0.35);
+      z-index: 2;
+    }
+
+    .image-frame.show-heart .double-heart {
+      animation: heart-pop-fade 0.8s ease forwards;
+    }
+
+    /* 액션/메타 영역 */
+    .post-body {
+      padding: 8px 12px 10px;
+    }
+
+    .post-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .left-actions {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .action-btn {
+      font-size: 1.25rem;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text);
+    }
+
+    .action-btn:hover {
+      background: color-mix(in srgb, var(--surface) 60%, var(--bg));
+      transform: translateY(-1px);
+    }
+
+    .action-btn.active.like-btn {
+      color: var(--heart-red);
+    }
+
+    .action-btn.active.bookmark-btn {
+      color: #f4b400;
+    }
+
+    .bounce {
+      animation: bounce-scale 0.35s ease;
+    }
+
+    .likes {
+      margin: 0 0 8px;
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .likes.animate {
+      animation: likes-pulse 0.35s ease;
+    }
+
+    .caption,
+    .preview-comments {
+      margin: 0 0 6px;
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+
+    .caption strong {
+      margin-right: 5px;
+    }
+
+    .more-link {
+      color: var(--muted);
+      margin-left: 6px;
+    }
+
+    .more-link:hover {
+      color: var(--text);
+      text-decoration: underline;
+    }
+
+    .preview-comments {
+      padding: 0;
+    }
+
+    .comment-item {
+      list-style: none;
+      margin: 0 0 4px;
+      padding: 0;
+      color: var(--text);
+    }
+
+    .comment-item strong {
+      margin-right: 5px;
+      font-weight: 700;
+    }
+
+    .post-time {
+      margin: 8px 0 10px;
+      color: var(--muted);
+      font-size: 0.73rem;
+      letter-spacing: 0.02em;
+    }
+
+    /* 댓글 입력행 */
+    .comment-form {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 8px;
+      border-top: 1px solid var(--border);
+      padding-top: 10px;
+    }
+
+    .comment-emoji {
+      font-size: 1rem;
+    }
+
+    .comment-input {
+      border: none;
+      outline: none;
+      background: transparent;
+      color: var(--text);
+      font-size: 0.9rem;
+      min-width: 0;
+    }
+
+    .comment-input::placeholder {
+      color: var(--muted);
+    }
+
+    .comment-submit {
+      color: var(--link-blue);
+      font-weight: 700;
+      opacity: 0.6;
+    }
+
+    .comment-submit:hover {
+      opacity: 1;
+    }
+
+    /* 무한 스크롤 센티널 */
+    #feed-sentinel {
+      width: 100%;
+      height: 12px;
+    }
+
+    /* 데스크톱 사이드바 */
+    .sidebar {
+      display: none;
+    }
+
+    .sidebar-inner {
+      position: sticky;
+      top: 86px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+      box-shadow: var(--shadow);
+    }
+
+    .profile-main,
+    .suggest-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .profile-main {
+      margin-bottom: 16px;
+    }
+
+    .profile-left,
+    .suggest-left {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .profile-main img,
+    .suggest-item img {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .profile-meta,
+    .suggest-meta {
+      min-width: 0;
+    }
+
+    .profile-id,
+    .suggest-id {
+      display: block;
+      font-weight: 700;
+      font-size: 0.9rem;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    .profile-name,
+    .suggest-note {
+      color: var(--muted);
+      font-size: 0.82rem;
+      display: block;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    .link-btn {
+      color: var(--link-blue);
+      font-size: 0.83rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .link-btn:hover {
+      text-decoration: underline;
+    }
+
+    .suggest-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--muted);
+      font-size: 0.85rem;
+      margin-bottom: 10px;
+    }
+
+    .suggest-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .sidebar-foot {
+      font-size: 0.75rem;
+      line-height: 1.5;
+      color: var(--muted);
+    }
+
+    .sidebar-foot a {
+      color: inherit;
+    }
+
+    .sidebar-foot a:hover {
+      color: var(--text);
+      text-decoration: underline;
+    }
+
+    /* 모바일 하단 네비게이션 */
+    .mobile-nav {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 130;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      padding: 6px 2px max(6px, env(safe-area-inset-bottom));
+    }
+
+    .mobile-nav button {
+      height: 40px;
+      border-radius: 10px;
+      font-size: 1.25rem;
+      color: var(--muted);
+    }
+
+    .mobile-nav button:hover {
+      background: color-mix(in srgb, var(--surface) 60%, var(--bg));
+      color: var(--text);
+    }
+
+    .mobile-nav button.active {
+      color: var(--text);
+      background: color-mix(in srgb, var(--surface) 40%, var(--bg));
+      position: relative;
+    }
+
+    .mobile-nav button.active::before {
+      content: "";
+      position: absolute;
+      top: -7px;
+      left: 25%;
+      width: 50%;
+      height: 3px;
+      border-radius: 999px;
+      background: var(--accent-grad);
+    }
+
+    /* 스토리 모달 */
+    .story-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: rgba(0, 0, 0, 0.88);
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+    }
+
+    .story-modal.open {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    .story-modal-dialog {
+      width: min(420px, 92vw);
+      height: min(760px, 90vh);
+      border-radius: 18px;
+      background: #111;
+      color: #fff;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .story-progress {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      right: 10px;
+      height: 4px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.25);
+      overflow: hidden;
+      z-index: 3;
+    }
+
+    .story-progress > span {
+      display: block;
+      width: 0%;
+      height: 100%;
+      background: #fff;
+    }
+
+    .story-progress > span.running {
+      animation: story-progress 5s linear forwards;
+    }
+
+    .story-head {
+      margin-top: 20px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 2;
+    }
+
+    .story-head-left {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .story-head img {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1px solid rgba(255, 255, 255, 0.65);
+    }
+
+    .story-close {
+      color: #fff;
+      font-size: 1.2rem;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .story-close:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .story-content {
+      margin-top: 8px;
+      flex: 1;
+      display: grid;
+      place-items: center;
+      position: relative;
+      overflow: hidden;
+      background: #000;
+    }
+
+    .story-content img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .story-caption {
+      position: absolute;
+      left: 14px;
+      right: 14px;
+      bottom: 14px;
+      font-size: 0.95rem;
+      line-height: 1.4;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 12px;
+      padding: 8px 10px;
+      backdrop-filter: blur(2px);
+    }
+
+    /* 반응형: 모바일(기본) */
+    @media (max-width: 480px) {
+      .header-inner {
+        grid-template-columns: auto minmax(90px, 1fr) auto;
+        gap: 8px;
+        padding: 8px 8px;
+      }
+
+      .brand {
+        font-size: 1.34rem;
+      }
+
+      .search-wrap {
+        padding: 7px 10px;
+      }
+
+      .icon-btn {
+        width: 30px;
+        height: 30px;
+      }
+
+      .story-item {
+        min-width: 68px;
+        max-width: 68px;
+      }
+
+      .story-ring {
+        width: 62px;
+        height: 62px;
+      }
+    }
+
+    /* 반응형: 태블릿(481~768) */
+    @media (min-width: 481px) and (max-width: 768px) {
+      .page-main {
+        padding-left: 14px;
+        padding-right: 14px;
+      }
+    }
+
+    /* 반응형: 769~1023 구간 */
+    @media (min-width: 769px) and (max-width: 1023px) {
+      .mobile-nav {
+        display: none;
+      }
+
+      .page-main {
+        padding-bottom: 16px;
+      }
+    }
+
+    /* 반응형: 데스크톱(1024+) */
+    @media (min-width: 1024px) {
+      .mobile-nav {
+        display: none;
+      }
+
+      .page-main {
+        grid-template-columns: minmax(0, 640px) 300px;
+        justify-content: center;
+        align-items: start;
+        padding-bottom: 24px;
+      }
+
+      .sidebar {
+        display: block;
+      }
+    }
+
+    /* 공통 애니메이션 정의 */
+    @keyframes ring-spin {
+      from {
+        transform: rotate(0deg);
+      }
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes bounce-scale {
+      0% { transform: scale(1); }
+      45% { transform: scale(1.28); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes likes-pulse {
+      0% {
+        transform: scale(1);
+        opacity: 0.85;
+      }
+      50% {
+        transform: scale(1.06);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    @keyframes heart-pop-fade {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.4);
+      }
+      25% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.3);
+      }
+    }
+
+    @keyframes skeleton-shimmer {
+      0% {
+        background-position: 180% 0;
+      }
+      100% {
+        background-position: -40% 0;
+      }
+    }
+
+    @keyframes story-progress {
+      from {
+        width: 0%;
+      }
+      to {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- 상단 고정 헤더 -->
+  <header class="app-header">
+    <div class="header-inner">
+      <h1 class="brand" aria-label="Instagram 스타일 로고">InstaMoment</h1>
+
+      <label class="search-wrap" for="global-search" aria-label="검색">
+        <span aria-hidden="true">🔎</span>
+        <input id="global-search" type="search" placeholder="검색">
+      </label>
+
+      <div class="header-actions" aria-label="헤더 빠른 메뉴">
+        <button class="icon-btn" type="button" aria-label="홈">⌂</button>
+        <button class="icon-btn" type="button" aria-label="알림">♡</button>
+        <button class="icon-btn" type="button" aria-label="프로필">👤</button>
+
+        <label class="theme-switch" aria-label="다크 모드 전환">
+          <input id="theme-toggle" type="checkbox" aria-label="다크 모드 전환">
+          <span class="theme-slider" aria-hidden="true"></span>
+        </label>
+      </div>
+    </div>
+  </header>
+
+  <!-- 메인 콘텐츠 -->
+  <main class="page-main">
+    <!-- 중앙 피드 컬럼 -->
+    <div class="feed-column">
+      <!-- 스토리 섹션 -->
+      <section class="stories" aria-label="스토리 목록">
+        <div id="stories-list" class="stories-list"></div>
+      </section>
+
+      <!-- 게시물 피드 섹션 -->
+      <section aria-label="게시물 피드">
+        <div id="feed-list" class="feed-list"></div>
+        <div id="feed-sentinel" aria-hidden="true"></div>
+      </section>
+    </div>
+
+    <!-- 데스크톱 사이드바 -->
+    <aside class="sidebar" aria-label="추천 및 계정 정보">
+      <div class="sidebar-inner">
+        <section class="profile-main" aria-label="현재 사용자">
+          <div class="profile-left">
+            <img src="https://picsum.photos/seed/me/88/88" alt="현재 사용자 프로필 사진">
+            <div class="profile-meta">
+              <span class="profile-id">my_daily_log</span>
+              <span class="profile-name">오늘의 기록</span>
+            </div>
+          </div>
+          <button class="link-btn" type="button" aria-label="계정 전환">전환</button>
+        </section>
+
+        <section aria-label="회원님을 위한 추천">
+          <div class="suggest-title">
+            <strong>회원님을 위한 추천</strong>
+            <button class="link-btn" type="button" aria-label="추천 모두 보기">모두 보기</button>
+          </div>
+          <div id="suggest-list" class="suggest-list"></div>
+        </section>
+
+        <footer class="sidebar-foot" aria-label="사이드 푸터 링크">
+          <a href="#" aria-label="소개">소개</a> ·
+          <a href="#" aria-label="도움말">도움말</a> ·
+          <a href="#" aria-label="홍보 센터">홍보 센터</a> ·
+          <a href="#" aria-label="API">API</a> ·
+          <a href="#" aria-label="개인정보처리방침">개인정보처리방침</a> ·
+          <a href="#" aria-label="약관">약관</a> ·
+          <a href="#" aria-label="위치">위치</a> ·
+          <a href="#" aria-label="언어">언어</a>
+          <div style="margin-top: 8px;">© 2026 INSTA MOMENT</div>
+        </footer>
+      </div>
+    </aside>
+  </main>
+
+  <!-- 모바일 하단 네비게이션 -->
+  <nav class="mobile-nav" aria-label="모바일 하단 네비게이션">
+    <button class="active" type="button" aria-label="홈">⌂</button>
+    <button type="button" aria-label="검색">🔎</button>
+    <button type="button" aria-label="릴스">▶</button>
+    <button type="button" aria-label="쇼핑">🛍</button>
+    <button type="button" aria-label="프로필">👤</button>
+  </nav>
+
+  <!-- 스토리 모달 -->
+  <div id="story-modal" class="story-modal" role="dialog" aria-modal="true" aria-hidden="true" aria-label="스토리 보기">
+    <div class="story-modal-dialog">
+      <div class="story-progress"><span id="story-progress-bar"></span></div>
+      <div class="story-head">
+        <div class="story-head-left">
+          <img id="story-modal-avatar" src="" alt="스토리 사용자 프로필 사진">
+          <strong id="story-modal-name">username</strong>
+        </div>
+        <button id="story-close-btn" class="story-close" type="button" aria-label="스토리 닫기">✕</button>
+      </div>
+      <div class="story-content">
+        <img id="story-modal-image" src="" alt="스토리 이미지">
+        <p id="story-modal-caption" class="story-caption"></p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    "use strict";
+
+    // 전역 데이터: 스토리 더미 데이터
+    const storiesData = [
+      { id: 1, username: "내 스토리", avatar: "https://picsum.photos/seed/my-story/120/120", isMine: true },
+      { id: 2, username: "min_ji", avatar: "https://picsum.photos/seed/story-minji/120/120", isMine: false },
+      { id: 3, username: "seoul.walk", avatar: "https://picsum.photos/seed/story-seoulwalk/120/120", isMine: false },
+      { id: 4, username: "art.jiho", avatar: "https://picsum.photos/seed/story-artjiho/120/120", isMine: false },
+      { id: 5, username: "travel_haru", avatar: "https://picsum.photos/seed/story-travelharu/120/120", isMine: false },
+      { id: 6, username: "coffee_note", avatar: "https://picsum.photos/seed/story-coffee/120/120", isMine: false },
+      { id: 7, username: "daylight.lee", avatar: "https://picsum.photos/seed/story-daylight/120/120", isMine: false },
+      { id: 8, username: "woori.fit", avatar: "https://picsum.photos/seed/story-fit/120/120", isMine: false },
+      { id: 9, username: "photo_by_n", avatar: "https://picsum.photos/seed/story-photo/120/120", isMine: false }
+    ];
+
+    // 전역 데이터: 초기 게시물 5개
+    const postsData = [
+      {
+        id: 1,
+        username: "min_ji",
+        avatar: "https://picsum.photos/seed/avatar-minji/80/80",
+        image: "https://picsum.photos/seed/post-1/800/800",
+        likes: 132,
+        caption: "주말 브런치 성공. 오늘의 베스트 메뉴는 버터토스트!",
+        comments: [
+          { username: "sooyeon", text: "사진 색감 너무 좋아요 🙌" },
+          { username: "daily.hoon", text: "여기 어딘지 궁금해요!" }
+        ],
+        hoursAgo: 2,
+        liked: false,
+        bookmarked: false
+      },
+      {
+        id: 2,
+        username: "seoul.walk",
+        avatar: "https://picsum.photos/seed/avatar-seoulwalk/80/80",
+        image: "https://picsum.photos/seed/post-2/800/800",
+        likes: 421,
+        caption: "노을 타임에 한강 산책. 바람이 시원해서 완벽했어요.",
+        comments: [
+          { username: "min_ji", text: "하늘 색이 진짜 영화 같아요!" }
+        ],
+        hoursAgo: 4,
+        liked: true,
+        bookmarked: true
+      },
+      {
+        id: 3,
+        username: "art.jiho",
+        avatar: "https://picsum.photos/seed/avatar-artjiho/80/80",
+        image: "https://picsum.photos/seed/post-3/800/800",
+        likes: 89,
+        caption: "새 작업 시작. 러프 스케치 단계부터 기록 중입니다.",
+        comments: [
+          { username: "gallery.na", text: "완성작도 기다릴게요!" },
+          { username: "woori.fit", text: "선이 정말 깔끔해요." }
+        ],
+        hoursAgo: 7,
+        liked: false,
+        bookmarked: false
+      },
+      {
+        id: 4,
+        username: "travel_haru",
+        avatar: "https://picsum.photos/seed/avatar-travelharu/80/80",
+        image: "https://picsum.photos/seed/post-4/800/800",
+        likes: 708,
+        caption: "바다 앞 작은 숙소. 창문 열면 파도 소리만 들려요.",
+        comments: [
+          { username: "sunny.day", text: "저도 꼭 가보고 싶어요 🌊" }
+        ],
+        hoursAgo: 12,
+        liked: false,
+        bookmarked: true
+      },
+      {
+        id: 5,
+        username: "coffee_note",
+        avatar: "https://picsum.photos/seed/avatar-coffee/80/80",
+        image: "https://picsum.photos/seed/post-5/800/800",
+        likes: 214,
+        caption: "오늘의 원두는 산미가 아주 선명한 타입.",
+        comments: [
+          { username: "bean.lab", text: "추출 비율 공유 가능할까요?" },
+          { username: "daily.hoon", text: "컵도 너무 예뻐요." }
+        ],
+        hoursAgo: 18,
+        liked: true,
+        bookmarked: false
+      }
+    ];
+
+    // 전역 데이터: 사이드 추천 유저
+    const suggestUsers = [
+      { username: "forest.wave", name: "초록 산책", avatar: "https://picsum.photos/seed/suggest-1/88/88" },
+      { username: "studio_rae", name: "레이 스튜디오", avatar: "https://picsum.photos/seed/suggest-2/88/88" },
+      { username: "fit.kyeong", name: "경이로운 루틴", avatar: "https://picsum.photos/seed/suggest-3/88/88" },
+      { username: "book.and.day", name: "읽고 쓰는 하루", avatar: "https://picsum.photos/seed/suggest-4/88/88" },
+      { username: "urban.snap", name: "도시 스냅", avatar: "https://picsum.photos/seed/suggest-5/88/88" }
+    ];
+
+    // DOM 참조/상태 변수
+    const storiesListEl = document.getElementById("stories-list");
+    const feedListEl = document.getElementById("feed-list");
+    const feedSentinelEl = document.getElementById("feed-sentinel");
+    const suggestListEl = document.getElementById("suggest-list");
+    const themeToggleEl = document.getElementById("theme-toggle");
+    const storyModalEl = document.getElementById("story-modal");
+    const storyProgressEl = document.getElementById("story-progress-bar");
+    const storyModalAvatarEl = document.getElementById("story-modal-avatar");
+    const storyModalNameEl = document.getElementById("story-modal-name");
+    const storyModalImageEl = document.getElementById("story-modal-image");
+    const storyModalCaptionEl = document.getElementById("story-modal-caption");
+    const storyCloseBtnEl = document.getElementById("story-close-btn");
+    let storyTimer = null;
+    let postIdSeed = postsData.length + 1;
+    let infiniteLoading = false;
+    let lastFocusElement = null;
+
+    // 피드 카드 페이드인 관찰자
+    const postRevealObserver = new IntersectionObserver(
+      (entries, observer) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.15 }
+    );
+
+    // 스토리 목록 렌더링
+    function renderStories(data) {
+      const fragment = document.createDocumentFragment();
+
+      data.forEach((story) => {
+        const wrapper = document.createElement("div");
+        wrapper.className = "story-item";
+
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "story-button";
+        button.setAttribute("aria-label", story.isMine ? "내 스토리 보기" : `${story.username} 스토리 보기`);
+
+        button.innerHTML = `
+          <span class="story-ring ${story.isMine ? "mine" : ""}">
+            <img src="${story.avatar}" alt="${story.username} 프로필 사진">
+            ${story.isMine ? '<span class="story-plus" aria-hidden="true">+</span>' : ""}
+          </span>
+          <span class="story-name">${story.username}</span>
+        `;
+
+        button.addEventListener("click", () => openStoryModal(story));
+        wrapper.appendChild(button);
+        fragment.appendChild(wrapper);
+      });
+
+      storiesListEl.innerHTML = "";
+      storiesListEl.appendChild(fragment);
+    }
+
+    // 게시물 목록 렌더링
+    function renderPosts(data, append = false) {
+      const fragment = document.createDocumentFragment();
+
+      data.forEach((post) => {
+        const postEl = createPostElement(post);
+        fragment.appendChild(postEl);
+      });
+
+      if (!append) {
+        feedListEl.innerHTML = "";
+      }
+
+      feedListEl.appendChild(fragment);
+    }
+
+    // 게시물 카드 DOM 생성
+    function createPostElement(post) {
+      const article = document.createElement("article");
+      article.className = "post-card";
+      article.setAttribute("data-post-id", String(post.id));
+      article.dataset.likes = String(post.likes);
+
+      const initialComments = post.comments.slice(0, 2)
+        .map((comment) => `<li class="comment-item"><strong>${comment.username}</strong>${comment.text}</li>`)
+        .join("");
+
+      article.innerHTML = `
+        <header class="post-top">
+          <div class="post-user">
+            <img src="${post.avatar}" alt="${post.username} 프로필 사진">
+            <span class="post-username">${post.username}</span>
+          </div>
+          <button class="post-more" type="button" aria-label="더보기">⋯</button>
+        </header>
+
+        <div class="image-frame" data-role="image-frame">
+          <img src="${post.image}" alt="${post.username}의 게시물 이미지">
+          <span class="double-heart" aria-hidden="true">❤️</span>
+        </div>
+
+        <div class="post-body">
+          <div class="post-actions">
+            <div class="left-actions">
+              <button
+                class="action-btn like-btn ${post.liked ? "active" : ""}"
+                data-action="like"
+                type="button"
+                aria-label="좋아요"
+                aria-pressed="${post.liked ? "true" : "false"}"
+              >${post.liked ? "❤️" : "♡"}</button>
+              <button class="action-btn" type="button" aria-label="댓글">💬</button>
+              <button class="action-btn" type="button" aria-label="공유">↗</button>
+            </div>
+            <button
+              class="action-btn bookmark-btn ${post.bookmarked ? "active" : ""}"
+              data-action="bookmark"
+              type="button"
+              aria-label="북마크"
+              aria-pressed="${post.bookmarked ? "true" : "false"}"
+            >${post.bookmarked ? "📑" : "🔖"}</button>
+          </div>
+
+          <p class="likes">좋아요 ${Number(post.likes).toLocaleString("ko-KR")}개</p>
+          <p class="caption"><strong>${post.username}</strong>${post.caption}<a class="more-link" href="#" aria-label="캡션 더 보기">더 보기</a></p>
+          <ul class="preview-comments" data-role="comment-list">${initialComments}</ul>
+          <p class="post-time">${post.hoursAgo}시간 전</p>
+
+          <form class="comment-form" novalidate>
+            <span class="comment-emoji" aria-hidden="true">😊</span>
+            <label class="sr-only" for="comment-input-${post.id}">댓글 입력</label>
+            <input
+              id="comment-input-${post.id}"
+              class="comment-input"
+              data-role="comment-input"
+              type="text"
+              placeholder="댓글 달기..."
+              aria-label="댓글 입력"
+            >
+            <button class="comment-submit" type="submit" aria-label="댓글 게시">게시</button>
+          </form>
+        </div>
+      `;
+
+      bindPostInteractions(article);
+      postRevealObserver.observe(article);
+
+      return article;
+    }
+
+    // 게시물별 인터랙션 바인딩
+    function bindPostInteractions(postEl) {
+      const likeBtn = postEl.querySelector('[data-action="like"]');
+      const bookmarkBtn = postEl.querySelector('[data-action="bookmark"]');
+      const imageFrame = postEl.querySelector('[data-role="image-frame"]');
+      const imageEl = imageFrame.querySelector("img");
+      const commentForm = postEl.querySelector(".comment-form");
+      const commentInput = postEl.querySelector('[data-role="comment-input"]');
+      const commentBtn = commentForm.querySelector(".comment-submit");
+      const commentActionBtn = postEl.querySelector('.left-actions .action-btn:nth-child(2)');
+
+      likeBtn.addEventListener("click", () => toggleLike(postEl, false));
+      bookmarkBtn.addEventListener("click", () => toggleBookmark(postEl));
+
+      imageFrame.addEventListener("dblclick", () => {
+        imageFrame.classList.remove("show-heart");
+        void imageFrame.offsetWidth;
+        imageFrame.classList.add("show-heart");
+
+        const alreadyLiked = likeBtn.getAttribute("aria-pressed") === "true";
+        if (!alreadyLiked) {
+          toggleLike(postEl, true);
+        }
+      });
+
+      imageFrame.addEventListener("animationend", (event) => {
+        if (event.animationName === "heart-pop-fade") {
+          imageFrame.classList.remove("show-heart");
+        }
+      });
+
+      const revealImage = () => {
+        imageFrame.classList.add("loaded");
+      };
+
+      if (imageEl.complete) {
+        revealImage();
+      } else {
+        imageEl.addEventListener("load", revealImage, { once: true });
+        imageEl.addEventListener("error", revealImage, { once: true });
+      }
+
+      commentActionBtn.addEventListener("click", () => commentInput.focus());
+
+      commentForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const text = commentInput.value.trim();
+        if (!text) {
+          return;
+        }
+        appendComment(postEl, text);
+        commentInput.value = "";
+        commentBtn.style.opacity = "0.6";
+      });
+
+      commentInput.addEventListener("input", () => {
+        commentBtn.style.opacity = commentInput.value.trim() ? "1" : "0.6";
+      });
+    }
+
+    // 좋아요 토글 + 숫자 애니메이션 처리
+    function toggleLike(postEl, fromDoubleClick = false) {
+      const likeBtn = postEl.querySelector('[data-action="like"]');
+      const likesEl = postEl.querySelector(".likes");
+      const currentLiked = likeBtn.getAttribute("aria-pressed") === "true";
+      let likesCount = Number(postEl.dataset.likes);
+
+      if (fromDoubleClick && currentLiked) {
+        return;
+      }
+
+      if (currentLiked) {
+        likesCount = Math.max(0, likesCount - 1);
+        likeBtn.textContent = "♡";
+        likeBtn.classList.remove("active");
+        likeBtn.setAttribute("aria-pressed", "false");
+      } else {
+        likesCount += 1;
+        likeBtn.textContent = "❤️";
+        likeBtn.classList.add("active");
+        likeBtn.setAttribute("aria-pressed", "true");
+      }
+
+      postEl.dataset.likes = String(likesCount);
+      likesEl.textContent = `좋아요 ${likesCount.toLocaleString("ko-KR")}개`;
+
+      likeBtn.classList.remove("bounce");
+      likesEl.classList.remove("animate");
+      void likeBtn.offsetWidth;
+      likeBtn.classList.add("bounce");
+      likesEl.classList.add("animate");
+    }
+
+    // 북마크 토글 처리
+    function toggleBookmark(postEl) {
+      const bookmarkBtn = postEl.querySelector('[data-action="bookmark"]');
+      const currentState = bookmarkBtn.getAttribute("aria-pressed") === "true";
+      const nextState = !currentState;
+
+      bookmarkBtn.setAttribute("aria-pressed", String(nextState));
+      bookmarkBtn.textContent = nextState ? "📑" : "🔖";
+      bookmarkBtn.classList.toggle("active", nextState);
+
+      bookmarkBtn.classList.remove("bounce");
+      void bookmarkBtn.offsetWidth;
+      bookmarkBtn.classList.add("bounce");
+    }
+
+    // 스토리 모달 열기
+    function openStoryModal(story) {
+      lastFocusElement = document.activeElement;
+      storyModalAvatarEl.src = story.avatar;
+      storyModalAvatarEl.alt = `${story.username} 프로필 사진`;
+      storyModalNameEl.textContent = story.username;
+      storyModalImageEl.src = `https://picsum.photos/seed/story-full-${story.id}/1080/1920`;
+      storyModalImageEl.alt = `${story.username} 스토리 이미지`;
+      storyModalCaptionEl.textContent = story.isMine ? "내 스토리를 보고 있어요." : `${story.username}님의 스토리입니다.`;
+
+      storyModalEl.classList.add("open");
+      storyModalEl.setAttribute("aria-hidden", "false");
+
+      storyProgressEl.classList.remove("running");
+      void storyProgressEl.offsetWidth;
+      storyProgressEl.classList.add("running");
+
+      clearTimeout(storyTimer);
+      storyTimer = setTimeout(() => {
+        closeStoryModal();
+      }, 5000);
+
+      storyCloseBtnEl.focus();
+    }
+
+    // 스토리 모달 닫기
+    function closeStoryModal() {
+      clearTimeout(storyTimer);
+      storyProgressEl.classList.remove("running");
+      storyModalEl.classList.remove("open");
+      storyModalEl.setAttribute("aria-hidden", "true");
+
+      if (lastFocusElement && typeof lastFocusElement.focus === "function") {
+        lastFocusElement.focus();
+      }
+    }
+
+    // 댓글 동적 추가
+    function appendComment(postEl, text) {
+      const commentList = postEl.querySelector('[data-role="comment-list"]');
+      const li = document.createElement("li");
+      li.className = "comment-item";
+      li.innerHTML = `<strong>me_now</strong>${text}`;
+      commentList.appendChild(li);
+    }
+
+    // 다크모드 적용
+    function applyTheme(mode) {
+      document.documentElement.setAttribute("data-theme", mode);
+      themeToggleEl.checked = mode === "dark";
+    }
+
+    // 다크모드 토글
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute("data-theme");
+      applyTheme(current === "dark" ? "light" : "dark");
+    }
+
+    // 무한 스크롤용 새 게시물 생성
+    function generatePostBatch(count = 3) {
+      const textPool = [
+        "오늘도 천천히, 하지만 꾸준하게.",
+        "햇살이 좋아서 카메라를 멈출 수 없던 날.",
+        "작은 변화가 만드는 큰 기분 전환.",
+        "한 장의 사진으로 남기는 하루 기록.",
+        "지금 이 순간의 공기와 온도."
+      ];
+      const namePool = ["urban.snap", "mood.archive", "hello_haru", "daily.noon", "by_hyeon"];
+
+      const batch = [];
+      for (let i = 0; i < count; i += 1) {
+        const id = postIdSeed++;
+        const username = namePool[Math.floor(Math.random() * namePool.length)];
+        batch.push({
+          id,
+          username,
+          avatar: `https://picsum.photos/seed/avatar-extra-${id}/80/80`,
+          image: `https://picsum.photos/seed/post-extra-${id}/800/800`,
+          likes: 60 + Math.floor(Math.random() * 500),
+          caption: textPool[Math.floor(Math.random() * textPool.length)],
+          comments: [
+            { username: "follower.one", text: "피드 분위기가 너무 좋아요!" },
+            { username: "follower.two", text: "다음 사진도 기대할게요." }
+          ],
+          hoursAgo: 1 + Math.floor(Math.random() * 23),
+          liked: false,
+          bookmarked: false
+        });
+      }
+
+      return batch;
+    }
+
+    // 무한 스크롤 초기화
+    function setupInfiniteScroll() {
+      const infiniteObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting && !infiniteLoading) {
+              infiniteLoading = true;
+              const newPosts = generatePostBatch(3);
+              postsData.push(...newPosts);
+              renderPosts(newPosts, true);
+              setTimeout(() => {
+                infiniteLoading = false;
+              }, 350);
+            }
+          });
+        },
+        { root: null, rootMargin: "220px 0px", threshold: 0.01 }
+      );
+
+      infiniteObserver.observe(feedSentinelEl);
+    }
+
+    // 사이드 추천 유저 렌더링
+    function renderSuggestions() {
+      const fragment = document.createDocumentFragment();
+
+      suggestUsers.forEach((user) => {
+        const item = document.createElement("div");
+        item.className = "suggest-item";
+        item.innerHTML = `
+          <div class="suggest-left">
+            <img src="${user.avatar}" alt="${user.username} 프로필 사진">
+            <div class="suggest-meta">
+              <span class="suggest-id">${user.username}</span>
+              <span class="suggest-note">${user.name}</span>
+            </div>
+          </div>
+          <button class="link-btn" type="button" aria-label="${user.username} 팔로우">팔로우</button>
+        `;
+        fragment.appendChild(item);
+      });
+
+      suggestListEl.innerHTML = "";
+      suggestListEl.appendChild(fragment);
+    }
+
+    // 모달 이벤트 등록
+    function bindModalEvents() {
+      storyCloseBtnEl.addEventListener("click", closeStoryModal);
+
+      storyModalEl.addEventListener("click", (event) => {
+        if (event.target === storyModalEl) {
+          closeStoryModal();
+        }
+      });
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && storyModalEl.classList.contains("open")) {
+          closeStoryModal();
+        }
+      });
+    }
+
+    // 헤더 다크모드 토글 이벤트
+    function bindThemeEvents() {
+      themeToggleEl.addEventListener("change", toggleTheme);
+    }
+
+    // 모바일 하단 탭 활성화 토글
+    function bindMobileNav() {
+      const navButtons = document.querySelectorAll(".mobile-nav button");
+      navButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          navButtons.forEach((btn) => btn.classList.remove("active"));
+          button.classList.add("active");
+        });
+      });
+    }
+
+    // 앱 초기화
+    function init() {
+      applyTheme("light");
+      renderStories(storiesData);
+      renderPosts(postsData, false);
+      renderSuggestions();
+      bindThemeEvents();
+      bindModalEvents();
+      bindMobileNav();
+      setupInfiniteScroll();
+    }
+
+    init();
+  </script>
+</body>
+</html>
