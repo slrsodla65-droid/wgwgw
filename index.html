@@ -227,7 +227,7 @@
       background: color-mix(in srgb, var(--surface) 60%, var(--bg));
     }
 
-    /* 메인 레이아웃: 피드 + 데스크톱 사이드바 */
+    /* 메인 레이아웃: 좌측 도구 + 피드 + 데스크톱 사이드바 */
     .page-main {
       max-width: 1200px;
       margin: 0 auto;
@@ -241,6 +241,94 @@
       width: 100%;
       margin: 0 auto;
       max-width: 640px;
+    }
+
+    .left-sidebar {
+      display: none;
+    }
+
+    .left-sidebar-inner {
+      position: sticky;
+      top: 86px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+      box-shadow: var(--shadow);
+    }
+
+    .tm-title {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .tm-description {
+      margin: 8px 0 10px;
+      color: var(--muted);
+      font-size: 0.84rem;
+      line-height: 1.4;
+    }
+
+    .tm-start-btn {
+      width: 100%;
+      border-radius: 10px;
+      background: var(--link-blue);
+      color: #fff;
+      font-size: 0.88rem;
+      font-weight: 700;
+      padding: 10px 12px;
+    }
+
+    .tm-start-btn:hover {
+      filter: brightness(0.95);
+      transform: translateY(-1px);
+    }
+
+    .tm-start-btn:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .tm-status {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 0.78rem;
+      line-height: 1.4;
+    }
+
+    .tm-webcam-container {
+      margin-top: 10px;
+      min-height: 212px;
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      background: color-mix(in srgb, var(--surface) 70%, var(--bg));
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      padding: 4px;
+    }
+
+    .tm-webcam-container canvas {
+      width: 100%;
+      max-width: 200px;
+      border-radius: 10px;
+      display: block;
+    }
+
+    .tm-label-container {
+      margin-top: 10px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .tm-label-item {
+      font-size: 0.82rem;
+      color: var(--text);
+      line-height: 1.35;
+      border-bottom: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+      padding-bottom: 4px;
     }
 
     /* 스토리 섹션 */
@@ -1070,10 +1158,15 @@
       }
 
       .page-main {
-        grid-template-columns: minmax(0, 640px) 300px;
+        max-width: 1360px;
+        grid-template-columns: 220px minmax(0, 1fr) 300px;
         justify-content: center;
         align-items: start;
         padding-bottom: 24px;
+      }
+
+      .left-sidebar {
+        display: block;
       }
 
       .sidebar {
@@ -1177,6 +1270,19 @@
 
   <!-- 메인 콘텐츠 -->
   <main class="page-main">
+    <aside class="left-sidebar" aria-label="코딩 사진 식별 도구">
+      <div class="left-sidebar-inner">
+        <section aria-label="Teachable Machine 코딩 사진 식별">
+          <h2 class="tm-title">코딩 사진 식별</h2>
+          <p class="tm-description">웹캠 화면을 분석해서 코딩 관련 장면을 식별합니다.</p>
+          <button id="tm-start-btn" class="tm-start-btn" type="button" onclick="initCodingClassifier()">Start</button>
+          <p id="tm-status" class="tm-status">Start 버튼을 눌러 카메라를 시작하세요.</p>
+          <div id="tm-webcam-container" class="tm-webcam-container"></div>
+          <div id="tm-label-container" class="tm-label-container"></div>
+        </section>
+      </div>
+    </aside>
+
     <!-- 중앙 피드 컬럼 -->
     <div class="feed-column">
       <!-- 스토리 섹션 -->
@@ -1332,6 +1438,89 @@
       </div>
     </div>
   </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+  <script>
+    const TM_MODEL_BASE_URL = "https://teachablemachine.withgoogle.com/models/4ItTy4E8y/";
+    let tmCodingModel = null;
+    let tmCodingWebcam = null;
+    let tmCodingLabelContainer = null;
+    let tmCodingMaxPredictions = 0;
+    let tmCodingRunning = false;
+
+    async function initCodingClassifier() {
+      const startBtn = document.getElementById("tm-start-btn");
+      const statusEl = document.getElementById("tm-status");
+      const webcamContainerEl = document.getElementById("tm-webcam-container");
+      const labelContainerEl = document.getElementById("tm-label-container");
+
+      if (tmCodingRunning) {
+        statusEl.textContent = "이미 식별이 실행 중입니다.";
+        return;
+      }
+
+      try {
+        startBtn.disabled = true;
+        statusEl.textContent = "모델과 카메라를 준비 중입니다...";
+
+        if (!tmCodingModel) {
+          const modelURL = TM_MODEL_BASE_URL + "model.json";
+          const metadataURL = TM_MODEL_BASE_URL + "metadata.json";
+          tmCodingModel = await tmImage.load(modelURL, metadataURL);
+          tmCodingMaxPredictions = tmCodingModel.getTotalClasses();
+        }
+
+        const flip = true;
+        tmCodingWebcam = new tmImage.Webcam(200, 200, flip);
+        await tmCodingWebcam.setup();
+        await tmCodingWebcam.play();
+        tmCodingRunning = true;
+
+        webcamContainerEl.innerHTML = "";
+        webcamContainerEl.appendChild(tmCodingWebcam.canvas);
+
+        labelContainerEl.innerHTML = "";
+        for (let i = 0; i < tmCodingMaxPredictions; i += 1) {
+          const row = document.createElement("div");
+          row.className = "tm-label-item";
+          labelContainerEl.appendChild(row);
+        }
+        tmCodingLabelContainer = labelContainerEl;
+
+        statusEl.textContent = "실시간 식별 중입니다.";
+        window.requestAnimationFrame(loopCodingClassifier);
+      } catch (error) {
+        console.error(error);
+        statusEl.textContent = "카메라 권한 또는 모델 로드에 실패했습니다.";
+        tmCodingRunning = false;
+      } finally {
+        startBtn.disabled = false;
+      }
+    }
+
+    async function loopCodingClassifier() {
+      if (!tmCodingRunning || !tmCodingWebcam) {
+        return;
+      }
+
+      tmCodingWebcam.update();
+      await predictCodingClassifier();
+      window.requestAnimationFrame(loopCodingClassifier);
+    }
+
+    async function predictCodingClassifier() {
+      const prediction = await tmCodingModel.predict(tmCodingWebcam.canvas);
+      prediction.sort((a, b) => b.probability - a.probability);
+
+      for (let i = 0; i < tmCodingMaxPredictions; i += 1) {
+        const classPrediction = `${prediction[i].className}: ${(prediction[i].probability * 100).toFixed(1)}%`;
+        tmCodingLabelContainer.childNodes[i].textContent = classPrediction;
+      }
+    }
+
+    window.initCodingClassifier = initCodingClassifier;
+  </script>
 
   <script>
     "use strict";
