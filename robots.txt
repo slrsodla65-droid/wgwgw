@@ -1,0 +1,4 @@
+﻿User-agent: *
+Allow: /
+
+Sitemap: https://slrsodla65-droid.github.io/wgwgw/sitemap.xml
