@@ -1,4 +1,7 @@
-﻿User-agent: *
+User-agent: Yeti
 Allow: /
 
-Sitemap: https://slrsodla65-droid.github.io/wgwgw/sitemap.xml
+User-agent: *
+Allow: /
+
+Sitemap: https://wgwgw.pages.dev/sitemap.xml

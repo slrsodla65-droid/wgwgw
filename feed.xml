@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>InstaMoment Lab</title>
+    <link>https://wgwgw.pages.dev/</link>
+    <description>Practical Korean tech content about AI, web development, and operations.</description>
+    <language>ko-KR</language>
+    <lastBuildDate>Fri, 20 Feb 2026 00:00:00 +0900</lastBuildDate>
+    <ttl>1440</ttl>
+
+    <item>
+      <title>4-step requirements definition to reduce project failure</title>
+      <link>https://wgwgw.pages.dev/#feed-planning</link>
+      <guid isPermaLink="true">https://wgwgw.pages.dev/#feed-planning</guid>
+      <pubDate>Tue, 18 Feb 2026 00:00:00 +0900</pubDate>
+      <description>A practical checklist covering goals, metrics, failure conditions, and release scope.</description>
+    </item>
+
+    <item>
+      <title>Portfolio page structure that improves trust</title>
+      <link>https://wgwgw.pages.dev/#feed-web</link>
+      <guid isPermaLink="true">https://wgwgw.pages.dev/#feed-web</guid>
+      <pubDate>Tue, 18 Feb 2026 00:00:00 +0900</pubDate>
+      <description>How to structure home, about, contact, and policy pages for better discoverability.</description>
+    </item>
+
+    <item>
+      <title>Checklist for shipping Teachable Machine features</title>
+      <link>https://wgwgw.pages.dev/#feed-ai</link>
+      <guid isPermaLink="true">https://wgwgw.pages.dev/#feed-ai</guid>
+      <pubDate>Tue, 18 Feb 2026 00:00:00 +0900</pubDate>
+      <description>Beyond model accuracy: input quality, error handling, copy, and data policy checks.</description>
+    </item>
+
+    <item>
+      <title>Content operations routine before ad monetization</title>
+      <link>https://wgwgw.pages.dev/#feed-ops</link>
+      <guid isPermaLink="true">https://wgwgw.pages.dev/#feed-ops</guid>
+      <pubDate>Tue, 18 Feb 2026 00:00:00 +0900</pubDate>
+      <description>Keep content quality and navigation quality ahead of ad density and short-term revenue.</description>
+    </item>
+  </channel>
+</rss>
