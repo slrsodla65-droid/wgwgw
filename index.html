@@ -10,19 +10,9 @@
 
     gtag("config", "G-133EX0TCJ9");
   </script>
-  <script type="text/javascript">
-    (function (c, l, a, r, i, t, y) {
-      c[a] = c[a] || function () { (c[a].q = c[a].q || []).push(arguments); };
-      t = l.createElement(r);
-      t.async = 1;
-      t.src = "https://www.clarity.ms/tag/" + i;
-      y = l.getElementsByTagName(r)[0];
-      y.parentNode.insertBefore(t, y);
-    })(window, document, "clarity", "script", "vja5conk6a");
-  </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="실전 개발 노하우를 인스타그램형 피드로 제공하는 InstaMoment Lab. 원본 콘텐츠, 명확한 운영정보, 정책 공개를 갖춘 고품질 기술 사이트입니다.">
+  <meta name="description" content="InstaMoment Lab은 요구사항 정의, 웹 성능 최적화, AI 기능 연동, 배포 점검까지 실무에서 바로 적용할 수 있는 개발 방법을 인스타 피드 형식으로 정리한 한국어 기술 사이트입니다. 각 문서는 재현 가능한 단계와 체크리스트, 최신 수정 이력을 함께 제공합니다.">
   <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
   <meta name="author" content="InstaMoment Lab">
   <meta name="naver-site-verification" content="03ffc5a2da980529369ea3536fd82140dcc35c7b">
@@ -35,7 +25,7 @@
   <meta property="og:locale" content="ko_KR">
   <meta property="og:site_name" content="InstaMoment Lab">
   <meta property="og:title" content="InstaMoment Lab | 실전 코딩 피드">
-  <meta property="og:description" content="실전 개발 노하우를 인스타그램형 피드로 제공하는 InstaMoment Lab. 원본 콘텐츠, 명확한 운영정보, 정책 공개를 갖춘 고품질 기술 사이트입니다.">
+  <meta property="og:description" content="InstaMoment Lab은 요구사항 정의, 웹 성능 최적화, AI 기능 연동, 배포 점검까지 실무에서 바로 적용할 수 있는 개발 방법을 인스타 피드 형식으로 정리한 한국어 기술 사이트입니다. 각 문서는 재현 가능한 단계와 체크리스트, 최신 수정 이력을 함께 제공합니다.">
   <meta property="og:url" content="https://wgwgw.pages.dev/">
   <meta property="og:image" content="https://wgwgw.pages.dev/og-image.png">
   <meta property="og:image:width" content="1200">
@@ -43,12 +33,9 @@
   <meta property="og:image:alt" content="InstaMoment Lab 대표 이미지">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="InstaMoment Lab | 실전 코딩 피드">
-  <meta name="twitter:description" content="실전 개발 노하우를 인스타그램형 피드로 제공하는 InstaMoment Lab. 원본 콘텐츠, 명확한 운영정보, 정책 공개를 갖춘 고품질 기술 사이트입니다.">
+  <meta name="twitter:description" content="InstaMoment Lab은 요구사항 정의, 웹 성능 최적화, AI 기능 연동, 배포 점검까지 실무에서 바로 적용할 수 있는 개발 방법을 인스타 피드 형식으로 정리한 한국어 기술 사이트입니다. 각 문서는 재현 가능한 단계와 체크리스트, 최신 수정 이력을 함께 제공합니다.">
   <meta name="twitter:image" content="https://wgwgw.pages.dev/og-image.png">
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2578881096104790" crossorigin="anonymous"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link rel="preload" href="styles.css" as="style">
   <link rel="stylesheet" href="styles.css">
   <link rel="icon" type="image/x-icon" href="favicon.ico?v=20260220">
   <link rel="shortcut icon" href="favicon.ico?v=20260220">
@@ -323,7 +310,8 @@
 
       <section class="panel comments-panel">
         <h2>커뮤니티 댓글</h2>
-        <p class="muted">아래 댓글에서 피드 개선 의견을 남겨 주세요.</p>
+        <p id="comments-status" class="muted">버튼을 누르면 댓글을 불러옵니다.</p>
+        <button id="load-comments-btn" class="btn" type="button">댓글 불러오기</button>
         <div id="disqus_thread"></div>
         <noscript>JavaScript를 활성화하면 댓글을 볼 수 있습니다.</noscript>
       </section>
@@ -341,13 +329,42 @@
     </div>
   </footer>
 
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
   <script>
     const TM_MODEL_BASE_URL = "https://teachablemachine.withgoogle.com/models/4ItTy4E8y/";
+    const TM_TFJS_URL = "https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js";
+    const TM_IMAGE_URL = "https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js";
+    const ADSENSE_SCRIPT_URL = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2578881096104790";
+    const CLARITY_SCRIPT_URL = "https://www.clarity.ms/tag/vja5conk6a";
+
     let tmCodingModel = null;
     let tmCodingLabelContainer = null;
     let tmCodingMaxPredictions = 0;
+    let tmLibraryPromise = null;
+    let commentsLoaded = false;
+    let monetizationScriptsLoaded = false;
+
+    function loadScriptOnce(src, options = {}) {
+      const existingScript = document.querySelector(`script[src="${src}"]`);
+      if (existingScript) {
+        return Promise.resolve();
+      }
+
+      return new Promise((resolve, reject) => {
+        const scriptEl = document.createElement("script");
+        scriptEl.src = src;
+        scriptEl.async = options.async !== false;
+        if (options.defer) {
+          scriptEl.defer = true;
+        }
+        if (options.crossOrigin) {
+          scriptEl.crossOrigin = options.crossOrigin;
+        }
+
+        scriptEl.onload = () => resolve();
+        scriptEl.onerror = () => reject(new Error(`스크립트 로딩 실패: ${src}`));
+        document.head.appendChild(scriptEl);
+      });
+    }
 
     function applyTheme(themeName) {
       document.documentElement.setAttribute("data-theme", themeName);
@@ -370,10 +387,27 @@
       });
     }
 
+    async function ensureTmLibraries() {
+      if (window.tf && window.tmImage) {
+        return;
+      }
+
+      if (!tmLibraryPromise) {
+        tmLibraryPromise = (async () => {
+          await loadScriptOnce(TM_TFJS_URL, { async: true });
+          await loadScriptOnce(TM_IMAGE_URL, { async: true });
+        })();
+      }
+
+      await tmLibraryPromise;
+    }
+
     async function loadCodingModel() {
       if (tmCodingModel) {
         return tmCodingModel;
       }
+
+      await ensureTmLibraries();
 
       const modelURL = TM_MODEL_BASE_URL + "model.json";
       const metadataURL = TM_MODEL_BASE_URL + "metadata.json";
@@ -418,10 +452,14 @@
         previewEl.appendChild(imageEl);
 
         const prediction = await tmCodingModel.predict(imageEl);
-        prediction.sort((a, b) => b.probability - a.probability);
+        const sortedPrediction = prediction.slice().sort((a, b) => b.probability - a.probability);
 
         for (let i = 0; i < tmCodingMaxPredictions; i += 1) {
-          const classPrediction = `${prediction[i].className}: ${(prediction[i].probability * 100).toFixed(1)}%`;
+          const item = sortedPrediction[i];
+          if (!item) {
+            continue;
+          }
+          const classPrediction = `${item.className}: ${(item.probability * 100).toFixed(1)}%`;
           tmCodingLabelContainer.childNodes[i].textContent = classPrediction;
         }
         statusEl.textContent = "식별 완료";
@@ -446,22 +484,81 @@
       });
     }
 
-    var disqus_config = function () {
-      this.page.url = "https://wgwgw.pages.dev/";
-      this.page.identifier = "instamoment-home-feed";
-    };
+    async function loadComments() {
+      if (commentsLoaded) {
+        return;
+      }
 
-    (function () {
-      var d = document;
-      var s = d.createElement("script");
-      s.src = "https://wewerww.disqus.com/embed.js";
-      s.setAttribute("data-timestamp", +new Date());
-      (d.head || d.body).appendChild(s);
-    })();
+      const statusEl = document.getElementById("comments-status");
+      const loadBtn = document.getElementById("load-comments-btn");
+      commentsLoaded = true;
 
-    document.getElementById("year").textContent = new Date().getFullYear();
+      if (loadBtn) {
+        loadBtn.disabled = true;
+        loadBtn.textContent = "불러오는 중...";
+      }
+      if (statusEl) {
+        statusEl.textContent = "댓글을 불러오는 중입니다.";
+      }
+
+      window.disqus_config = function () {
+        this.page.url = "https://wgwgw.pages.dev/";
+        this.page.identifier = "instamoment-home-feed";
+      };
+
+      try {
+        await loadScriptOnce("https://wewerww.disqus.com/embed.js", { async: true });
+        if (statusEl) {
+          statusEl.textContent = "댓글이 로드되었습니다.";
+        }
+        if (loadBtn) {
+          loadBtn.remove();
+        }
+      } catch (error) {
+        commentsLoaded = false;
+        if (statusEl) {
+          statusEl.textContent = "댓글 로딩에 실패했습니다. 다시 시도해 주세요.";
+        }
+        if (loadBtn) {
+          loadBtn.disabled = false;
+          loadBtn.textContent = "댓글 불러오기";
+        }
+      }
+    }
+
+    function initCommentsLoader() {
+      const loadBtn = document.getElementById("load-comments-btn");
+      if (!loadBtn) {
+        return;
+      }
+      loadBtn.addEventListener("click", loadComments);
+    }
+
+    function loadMonetizationScripts() {
+      if (monetizationScriptsLoaded) {
+        return;
+      }
+      monetizationScriptsLoaded = true;
+
+      loadScriptOnce(CLARITY_SCRIPT_URL, { async: true }).catch(() => {});
+      loadScriptOnce(ADSENSE_SCRIPT_URL, { async: true, crossOrigin: "anonymous" }).catch(() => {});
+    }
+
+    function initMonetizationScriptLoader() {
+      const triggerLoad = () => loadMonetizationScripts();
+      window.addEventListener("pointerdown", triggerLoad, { once: true, passive: true });
+      window.addEventListener("scroll", triggerLoad, { once: true, passive: true });
+      window.addEventListener("keydown", triggerLoad, { once: true });
+    }
+
+    const yearEl = document.getElementById("year");
+    if (yearEl) {
+      yearEl.textContent = new Date().getFullYear();
+    }
     initThemePicker();
     bindCodingFileInput();
+    initCommentsLoader();
+    initMonetizationScriptLoader();
   </script>
 </body>
 </html>

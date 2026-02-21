@@ -66,7 +66,7 @@ body {
 
 body {
   color: var(--text);
-  font-family: "Noto Sans KR", "Segoe UI", Arial, sans-serif;
+  font-family: "Pretendard", "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", "Segoe UI", Arial, sans-serif;
   line-height: 1.6;
   background:
     radial-gradient(circle at 15% 20%, var(--bg-accent) 0%, transparent 35%),
@@ -130,7 +130,8 @@ img {
 
 .brand,
 .logo {
-  font-family: "Black Han Sans", "Noto Sans KR", sans-serif;
+  font-family: "Pretendard", "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  font-weight: 800;
   letter-spacing: 0.2px;
   font-size: 1.35rem;
   color: var(--text);
