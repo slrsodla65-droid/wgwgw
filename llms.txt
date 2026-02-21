@@ -1,0 +1,21 @@
+# InstaMoment Lab
+
+InstaMoment Lab is a Korean practical engineering publication focused on web development operations, AI feature integration, and deployment reliability.
+
+## Canonical
+- https://wgwgw.pages.dev/
+
+## Core Guides
+- [Requirements Definition 4 Steps](https://wgwgw.pages.dev/guide-requirements-definition): A practical framework for defining problem statements, user scenarios, success metrics, and release scope.
+- [Portfolio Structure Guide](https://wgwgw.pages.dev/guide-portfolio-structure): A trust-oriented information architecture for home/about/contact/privacy pages.
+- [Teachable Machine Checklist](https://wgwgw.pages.dev/guide-teachable-machine-checklist): Checklist for model integration, error handling, UX copy, and data handling policy.
+- [Content Ops Routine](https://wgwgw.pages.dev/guide-content-ops-routine): Editorial and operational routine prioritizing content quality before ad density.
+
+## Governance Pages
+- [About](https://wgwgw.pages.dev/about)
+- [Contact](https://wgwgw.pages.dev/contact)
+- [Privacy Policy](https://wgwgw.pages.dev/privacy)
+
+## Machine-readable Feeds
+- [Sitemap](https://wgwgw.pages.dev/sitemap.xml)
+- [RSS](https://wgwgw.pages.dev/feed.xml)

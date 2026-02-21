@@ -5,37 +5,37 @@
     <link>https://wgwgw.pages.dev/</link>
     <description>Practical Korean tech content about AI, web development, and operations.</description>
     <language>ko-KR</language>
-    <lastBuildDate>Fri, 20 Feb 2026 00:00:00 +0900</lastBuildDate>
+    <lastBuildDate>Sat, 21 Feb 2026 17:36:00 +0900</lastBuildDate>
     <ttl>1440</ttl>
 
     <item>
       <title>4-step requirements definition to reduce project failure</title>
-      <link>https://wgwgw.pages.dev/#feed-planning</link>
-      <guid isPermaLink="true">https://wgwgw.pages.dev/#feed-planning</guid>
+      <link>https://wgwgw.pages.dev/guide-requirements-definition</link>
+      <guid isPermaLink="true">https://wgwgw.pages.dev/guide-requirements-definition</guid>
       <pubDate>Tue, 18 Feb 2026 00:00:00 +0900</pubDate>
       <description>A practical checklist covering goals, metrics, failure conditions, and release scope.</description>
     </item>
 
     <item>
       <title>Portfolio page structure that improves trust</title>
-      <link>https://wgwgw.pages.dev/#feed-web</link>
-      <guid isPermaLink="true">https://wgwgw.pages.dev/#feed-web</guid>
+      <link>https://wgwgw.pages.dev/guide-portfolio-structure</link>
+      <guid isPermaLink="true">https://wgwgw.pages.dev/guide-portfolio-structure</guid>
       <pubDate>Tue, 18 Feb 2026 00:00:00 +0900</pubDate>
       <description>How to structure home, about, contact, and policy pages for better discoverability.</description>
     </item>
 
     <item>
       <title>Checklist for shipping Teachable Machine features</title>
-      <link>https://wgwgw.pages.dev/#feed-ai</link>
-      <guid isPermaLink="true">https://wgwgw.pages.dev/#feed-ai</guid>
+      <link>https://wgwgw.pages.dev/guide-teachable-machine-checklist</link>
+      <guid isPermaLink="true">https://wgwgw.pages.dev/guide-teachable-machine-checklist</guid>
       <pubDate>Tue, 18 Feb 2026 00:00:00 +0900</pubDate>
       <description>Beyond model accuracy: input quality, error handling, copy, and data policy checks.</description>
     </item>
 
     <item>
       <title>Content operations routine before ad monetization</title>
-      <link>https://wgwgw.pages.dev/#feed-ops</link>
-      <guid isPermaLink="true">https://wgwgw.pages.dev/#feed-ops</guid>
+      <link>https://wgwgw.pages.dev/guide-content-ops-routine</link>
+      <guid isPermaLink="true">https://wgwgw.pages.dev/guide-content-ops-routine</guid>
       <pubDate>Tue, 18 Feb 2026 00:00:00 +0900</pubDate>
       <description>Keep content quality and navigation quality ahead of ad density and short-term revenue.</description>
     </item>
